@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #fef8e7, #e6d7b2);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 700px;
+      height: 85vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    label {
+      font-weight: bold;
+      color: #333;
+    }
+    .add-produce-btn, .submit-btn {
+      background: linear-gradient(135deg, #b4c49a, #7ca982);
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: bold;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .add-produce-btn:hover, .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 169, 130, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="glass p-6">
+    <h2 class="text-2xl font-bold text-center mb-4 text-gray-900">Transaction Form</h2>
+    <form>
+      <div class="mb-4">
+        <label>Vendor ID</label>
+        <input type="text" class="w-full p-2 border rounded bg-white" required />
+      </div>
+      <div class="mb-4">
+        <label>Neighbor ID</label>
+        <input type="text" class="w-full p-2 border rounded bg-white" value="(Autopopulated)" readonly />
+      </div>
+      <div class="mb-4">
+        <label>Market Date</label>
+        <input type="date" class="w-full p-2 border rounded bg-white" value="(Autopopulated)" readonly />
+      </div>
+      <div class="mb-4">
+        <label>Total Sale Amount</label>
+        <input type="text" class="w-full p-2 border rounded bg-white" placeholder="$0.00" oninput="validateCurrencyInput(this)" onblur="formatCurrency(this)" data-error="Enter in the format: $amount.cents" required />
+      </div>
+      <div class="mb-4">
+        <label>Type of Payment</label>
+        <select class="w-full p-2 border rounded bg-white" id="paymentType" onchange="togglePaymentFields()">
+          <option value="">- Select Payment Type -</option>
+          <option value="Cash">Cash</option>
+          <option value="Debit/Credit">Debit/Credit</option>
+          <option value="Benefits">Benefits</option>
+        </select>
+      </div>
+      <div id="benefitsSection" class="mb-4 hidden">
+        <label>Benefits</label>
+        <div class="grid grid-cols-2 gap-4">
+          <input type="text" class="p-2 border rounded bg-white" placeholder="SNAP # tokens received" />
+          <input type="text" class="p-2 border rounded bg-white" placeholder="Community Bucks $0.00" />
+          <input type="text" class="p-2 border rounded bg-white" placeholder="PGL Bucks $0.00" />
+          <input type="text" class="p-2 border rounded bg-white" placeholder="Wallace $0.00" />
+        </div>
+      </div>
+      <div id="cashSection" class="mb-4 hidden">
+        <label>Amount</label>
+        <input type="text" class="w-full p-2 border rounded bg-white" />
+      </div>
+      <div id="debitSection" class="mb-4 hidden">
+        <label>Amount</label>
+        <input type="text" class="w-full p-2 border rounded bg-white" />
+      </div>
+      <div class="mb-4">
+        <label>Items Purchased & Quantities</label>
+        <div class="mb-2">
+          <label class="block mb-1">Item Type*</label>
+          <select class="w-full p-2 border rounded bg-white" id="itemType" onchange="toggleProduceSection()">
+            <option value="">- Select -</option>
+            <option value="Produce">Produce</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div id="produceContainer" class="hidden">
+          <div class="produce-card border p-4 rounded bg-white mb-3">
+            <label class="block mb-1">Produce</label>
+            <input type="text" class="w-full p-2 border rounded bg-white mb-2" placeholder="Produce Name" />
+            <div class="flex gap-4">
+              <input type="number" class="w-full p-2 border rounded bg-white" placeholder="Quantity" />
+              <select class="p-2 border rounded bg-white">
+                <option>lbs</option>
+                <option>counts</option>
+                <option>bunches</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" onclick="addProduceItem()" class="mt-2 text-sm add-produce-btn">Add Produce</button>
+        </div>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="submit-btn">Submit</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    function togglePaymentFields() {
+      const paymentType = document.getElementById('paymentType').value;
+      document.getElementById('benefitsSection').classList.toggle('hidden', paymentType !== 'Benefits');
+      document.getElementById('cashSection').classList.toggle('hidden', paymentType !== 'Cash');
+      document.getElementById('debitSection').classList.toggle('hidden', paymentType !== 'Debit/Credit');
+    }
+
+    function toggleProduceSection() {
+      const itemType = document.getElementById('itemType').value;
+      document.getElementById('produceContainer').classList.toggle('hidden', itemType !== 'Produce');
+    }
+
+    function addProduceItem() {
+      const container = document.getElementById('produceContainer');
+      const card = document.createElement('div');
+      card.className = 'border p-4 rounded bg-white mb-3';
+      card.innerHTML = `
+        <label class="block mb-1">Produce</label>
+        <input type="text" class="w-full p-2 border rounded bg-white mb-2" placeholder="Produce Name" />
+        <div class="flex gap-4">
+          <input type="number" class="w-full p-2 border rounded bg-white" placeholder="Quantity" />
+          <select class="p-2 border rounded bg-white">
+            <option>lbs</option>
+            <option>counts</option>
+            <option>bunches</option>
+          </select>
+        </div>
+        <button type="button" class="text-red-500 text-sm mt-2" onclick="this.parentElement.remove()">Remove</button>
+      `;
+      container.insertBefore(card, container.querySelector('.add-produce-btn'));
+    }
+
+    function validateCurrencyInput(input) {
+      const regex = /^\$\d+(\.\d{2})?$/;
+      const numericPattern = /^\d+(\.\d{1,2})?$/;
+      if (input.value && !regex.test(input.value)) {
+        if (numericPattern.test(input.value)) {
+          input.setCustomValidity('');
+        } else {
+          input.setCustomValidity(input.getAttribute('data-error'));
+          input.reportValidity();
+        }
+      } else {
+        input.setCustomValidity('');
+      }
+    }
+
+    function formatCurrency(input) {
+      const numericPattern = /^\d+(\.\d{1,2})?$/;
+      if (numericPattern.test(input.value)) {
+        input.value = `$${parseFloat(input.value).toFixed(2)}`;
+      }
+      validateCurrencyInput(input);
+    }
+  </script>
+</body>
+</html>
