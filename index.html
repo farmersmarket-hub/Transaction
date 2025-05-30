@@ -42,58 +42,146 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(124, 169, 130, 0.5);
     }
+	.status-icon {
+      display: inline-block;
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
   </style>
 </head>
 <body>
   <div class="glass p-6">
     <h2 class="text-2xl font-bold text-center mb-4 text-gray-900">Transaction Form</h2>
     <form>
-      <div class="mb-4">
-        <label>Vendor ID</label>
-        <input type="text" class="w-full p-2 border rounded bg-white" required />
+	<div class="mb-4">
+        <label>Vendor PIN</label>
+        <input type="text" id="vendorPin" name="vendorPin" class="w-full p-2 border rounded bg-white" required />
       </div>
       <div class="mb-4">
+        <label>Vendor ID</label>
+        <input type="text" id="vendorId" name="vendorId" class="w-full p-2 border rounded bg-white" readonly />
+      </div>
+	  <div class="mb-4">
+        <label>Vendor Type</label>
+        <input type="text" id="vendorType" name="vendorType" class="w-full p-2 border rounded bg-white" readonly />
+      </div>
+	  <div class="mb-4">
+        <label>Is the Attendee a Guest?</label>
+        <select class="w-full p-2 border rounded bg-white" id="customerType" name="customerType" onchange="toggleGuestFields()">
+          <option value="">- Select Customer Type -</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+	  <div class="mb-4 hidden" id="guestSection">
+        <label>Guest Code</label>
+        <input type="text" id="guestCode" name="guestCode" class="w-full p-2 border rounded bg-white" value="GUEST99" readonly />
+      </div>
+      <div class="mb-4 hidden" id="attendeeSection">
         <label>Neighbor ID</label>
-        <input type="text" class="w-full p-2 border rounded bg-white" value="(Autopopulated)" readonly />
+        <input type="text" id="neighborId" name="neighborId" class="w-full p-2 border rounded bg-white" onchange="fetchBenefitsBalance()" />
       </div>
       <div class="mb-4">
         <label>Market Date</label>
-        <input type="date" class="w-full p-2 border rounded bg-white" value="(Autopopulated)" readonly />
+        <input type="date" id="marketDate" name="marketDate" class="w-full p-2 border rounded bg-white" readonly />
       </div>
       <div class="mb-4">
-        <label>Total Sale Amount</label>
-        <input type="text" class="w-full p-2 border rounded bg-white" placeholder="$0.00" oninput="validateCurrencyInput(this)" onblur="formatCurrency(this)" data-error="Enter in the format: $amount.cents" required />
+        <label>Total Amount Owed</label>
+        <input type="text" name="totalAmount" id="totalAmount" class="w-full p-2 border rounded bg-white" placeholder="$0.00" oninput="validateCurrencyInput(this)" onblur="formatCurrency(this)" onchange="updatePayAmount()" data-error="Enter in the format: $0.00" required />
       </div>
-      <div class="mb-4">
-        <label>Type of Payment</label>
-        <select class="w-full p-2 border rounded bg-white" id="paymentType" onchange="togglePaymentFields()">
-          <option value="">- Select Payment Type -</option>
-          <option value="Cash">Cash</option>
-          <option value="Debit/Credit">Debit/Credit</option>
-          <option value="Benefits">Benefits</option>
-        </select>
+	  <div class="mb-4">
+        <label>Total Amount to be Paid &nbsp; <span id="paymentStatusIcon" class="status-icon text-red-600">&#33;</span></label>
+        <input type="text" name="payAmount" id="payAmount" class="w-full p-2 border rounded bg-white" placeholder="$0.00" readonly />		
       </div>
+	  <div class="mb-6 hidden" id="benefitsDisplaySection">
+		  <label class="block text-lg font-bold text-gray-800 mb-2">Your Current Benefits Balance:</label>
+		  <div class="space-y-2 border p-4 rounded bg-gray-50 w-fit">
+
+			<div class="flex items-center space-x-2">
+			  <span class="w-4 h-4 rounded bg-yellow-500"></span>
+			  <span class="text-sm font-medium text-gray-800">SNAP Bucks:</span>
+			  <span id="snapBucksBalance" class="text-sm text-gray-900 font-semibold">$0.00,	</span>
+			  <span class="ml-4 text-sm font-medium text-gray-900 font-semibold">SNAP Tokens:</span>
+			  <span id="snapTokensBalance" class="text-sm text-gray-800 font-semibold">0</span>
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <span class="w-4 h-4 rounded bg-green-500"></span>
+			  <span class="text-sm font-medium text-gray-800">Community Bucks:</span>
+			  <span id="communityBucksBalance" class="text-sm text-gray-900 font-semibold">$0.00</span>
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <span class="w-4 h-4 rounded bg-blue-500"></span>
+			  <span class="text-sm font-medium text-gray-800">PGL Bucks:</span>
+			  <span id="pglBucksBalance" class="text-sm text-gray-900 font-semibold">$0.00</span>
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <span class="w-4 h-4 rounded bg-red-500"></span>
+			  <span class="text-sm font-medium text-gray-800">Wallace Bucks:</span>
+			  <span id="wallaceBucksBalance" class="text-sm text-gray-900 font-semibold">$0.00</span>
+			</div>
+
+		  </div>
+	  </div>
+	  <div class="mb-4">
+		  <label>Type of Payment <span class="text-red-500">*</span></label>
+		  <div class="space-y-2">
+			<label class="inline-flex items-center">
+			  <input type="checkbox" name="paymentType" value="Cash" class="mr-2"> Cash
+			</label><br>
+			<label class="inline-flex items-center">
+			  <input type="checkbox" name="paymentType" value="Debit or Credit" class="mr-2"> Debit or Credit
+			</label><br>
+			<label class="inline-flex items-center">
+			  <input type="checkbox" name="paymentType" value="Benefits" class="mr-2"> Benefits
+			</label>
+		  </div>
+	  </div>
       <div id="benefitsSection" class="mb-4 hidden">
-        <label>Benefits</label>
-        <div class="grid grid-cols-2 gap-4">
-          <input type="text" class="p-2 border rounded bg-white" placeholder="SNAP # tokens received" />
-          <input type="text" class="p-2 border rounded bg-white" placeholder="Community Bucks $0.00" />
-          <input type="text" class="p-2 border rounded bg-white" placeholder="PGL Bucks $0.00" />
-          <input type="text" class="p-2 border rounded bg-white" placeholder="Wallace $0.00" />
-        </div>
-      </div>
+		  <label>Benefits</label>
+		  <div class="grid grid-cols-2 gap-4">
+		  
+			<div class="flex items-center space-x-2">
+			  <label for="snapTokens" class="w-36 text-sm font-medium text-gray-700">SNAP Tokens</label>
+			  <input type="text" id="snapTokens" class="p-2 border rounded bg-white w-half" oninput="validateAndRestrictBenefit('snapTokens', 'snapTokensBalance')" onchange="fillSnapBucks();  updatePayAmountAndBalance('snapTokens', 'snapTokensBalance');" placeholder="Tokens to be used" />
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <label for="snapBucks" class="w-36 text-sm font-medium text-gray-700">SNAP Bucks</label>
+			  <input type="text" id="snapBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('snapBucks', 'snapBucksBalance');" onblur="formatCurrency(this);" onchange="updatePayAmountAndBalance('snapBucks', 'snapBucksBalance')" placeholder="Bucks to be used" readonly />
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <label for="communityBucks" class="w-36 text-sm font-medium text-gray-700">Community Bucks</label>
+			  <input type="text" id="communityBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('communityBucks', 'communityBucksBalance');" onblur="formatCurrency(this)" onchange="updatePayAmountAndBalance('communityBucks', 'communityBucksBalance')" data-error="Enter in the format: $0.00" placeholder="Bucks to be used" />
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <label for="pglBucks" class="w-36 text-sm font-medium text-gray-700">PGL Bucks</label>
+			  <input type="text" id="pglBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('pglBucks', 'pglBucksBalance');" onblur="formatCurrency(this)"  onchange="updatePayAmountAndBalance('pglBucks', 'pglBucksBalance')" data-error="Enter in the format: $0.00" placeholder="Bucks to be used" />
+			</div>
+
+			<div class="flex items-center space-x-2">
+			  <label for="wallaceBucks" class="w-36 text-sm font-medium text-gray-700">Wallace Bucks</label>
+			  <input type="text" id="wallaceBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('wallaceBucks', 'wallaceBucksBalance');" onblur="formatCurrency(this)"  onchange="updatePayAmount()" data-error="Enter in the format: $0.00" placeholder="Bucks to be used" />
+			</div>
+
+		  </div>
+	  </div>
       <div id="cashSection" class="mb-4 hidden">
-        <label>Amount</label>
-        <input type="text" class="w-full p-2 border rounded bg-white" />
+        <label>Amount to be Paid through Cash</label>
+        <input type="text" id="cashAmount" class="w-full p-2 border rounded bg-white" placeholder="$0.00" oninput="validateCurrencyInput(this)" onblur="formatCurrency(this)" onchange="updatePayAmount()" data-error="Enter in the format: $0.00" />
       </div>
       <div id="debitSection" class="mb-4 hidden">
-        <label>Amount</label>
-        <input type="text" class="w-full p-2 border rounded bg-white" />
+        <label>Amount to be Paid through Card</label>
+        <input type="text" id="cardAmount" class="w-full p-2 border rounded bg-white" placeholder="$0.00" oninput="validateCurrencyInput(this)" onblur="formatCurrency(this)" onchange="updatePayAmount()" data-error="Enter in the format: $0.00" />
       </div>
       <div class="mb-4">
         <label>Items Purchased & Quantities</label>
         <div class="mb-2">
-          <label class="block mb-1">Item Type*</label>
+          <label class="block mb-1">Item Type</label>
           <select class="w-full p-2 border rounded bg-white" id="itemType" onchange="toggleProduceSection()">
             <option value="">- Select -</option>
             <option value="Produce">Produce</option>
@@ -101,18 +189,6 @@
           </select>
         </div>
         <div id="produceContainer" class="hidden">
-          <div class="produce-card border p-4 rounded bg-white mb-3">
-            <label class="block mb-1">Produce</label>
-            <input type="text" class="w-full p-2 border rounded bg-white mb-2" placeholder="Produce Name" />
-            <div class="flex gap-4">
-              <input type="number" class="w-full p-2 border rounded bg-white" placeholder="Quantity" />
-              <select class="p-2 border rounded bg-white">
-                <option>lbs</option>
-                <option>counts</option>
-                <option>bunches</option>
-              </select>
-            </div>
-          </div>
           <button type="button" onclick="addProduceItem()" class="mt-2 text-sm add-produce-btn">Add Produce</button>
         </div>
       </div>
@@ -122,11 +198,191 @@
     </form>
   </div>
   <script>
-    function togglePaymentFields() {
-      const paymentType = document.getElementById('paymentType').value;
-      document.getElementById('benefitsSection').classList.toggle('hidden', paymentType !== 'Benefits');
-      document.getElementById('cashSection').classList.toggle('hidden', paymentType !== 'Cash');
-      document.getElementById('debitSection').classList.toggle('hidden', paymentType !== 'Debit/Credit');
+	document.getElementById('marketDate').valueAsDate = new Date();
+	
+	const fullProduceList = [...new Set([
+    "African eggplants", "African Maize", "Sweet Potato Leaves", "Potatoes",
+    "Collard Greens", "Kale", "Tomatoes", "Onions", "Swiss Chards", "Peas", "Beans",
+    "Cucumbers", "Mchicha (African Spinach)", "Nightshade", "Green Beans", "Pumpkin and Leaves",
+    "Broccoli", "Radish", "Lettuce", "Zucchini", "Cauliflower", "Beets", "Celery", "Carrot",
+    "Bell Pepper", "Black Eyes Peas", "cilantro", "Cucumber", "Chilies", "Potatoes", "Corn",
+    "Blueberries", "Strawberry", "Onions", "Garlic", "Tomatillo"
+	])];
+	
+	function parseDollar(val) {
+	  if (!val) return 0;
+	  const numeric = val.replace(/[^\d.-]/g, '');
+	  return isNaN(parseFloat(numeric)) ? 0 : parseFloat(numeric);
+	}
+
+    function updatePayAmount() {
+      const totalOwed = parseDollar(document.getElementById('totalAmount').value);	  
+	  let remaining = totalOwed;
+      const cash = parseDollar(document.getElementById('cashAmount')?.value);
+      const card = parseDollar(document.getElementById('cardAmount')?.value);
+	  const snap = parseDollar(document.getElementById('snapBucks')?.value);
+      const community = parseDollar(document.getElementById('communityBucks')?.value);
+      const pgl = parseDollar(document.getElementById('pglBucks')?.value);
+      const wallace = parseDollar(document.getElementById('wallaceBucks')?.value);
+	  
+      remaining -= cash + card + snap + community + pgl + wallace;
+      //remaining = remaining < 0 ? 0 : remaining;
+
+      const payAmountInput = document.getElementById('payAmount');
+      const totalAmountInput = document.getElementById('totalAmount');
+      const statusIcon = document.getElementById('paymentStatusIcon');
+
+      payAmountInput.value = `$${remaining.toFixed(2)}`;
+
+      if (remaining === 0) {
+        totalAmountInput.classList.remove("text-red-600");
+        totalAmountInput.classList.add("text-green-600");
+        statusIcon.textContent = '✓';
+        statusIcon.classList.remove("text-red-600");
+        statusIcon.classList.add("text-green-600");
+      } else {
+        totalAmountInput.classList.remove("text-green-600");
+        totalAmountInput.classList.add("text-red-600");
+        statusIcon.textContent = '!';
+        statusIcon.classList.remove("text-green-600");
+        statusIcon.classList.add("text-red-600");
+      }
+    }
+	
+	function validateAndRestrictBenefit(inputId, balanceId) {
+	  const input = document.getElementById(inputId);
+	  const balanceEl = document.getElementById(balanceId);
+
+	  const inputVal = parseDollar(input.value);
+	  const balanceVal = parseDollar(balanceEl.textContent);
+
+	  if (inputVal > balanceVal) {
+		input.setCustomValidity("Amount exceeds available balance.");
+		input.reportValidity();
+		input.classList.add('border-red-500');
+
+		// Keep focus only if invalid
+		if (document.activeElement !== input) {
+		  input.focus();
+		}
+
+		// Optional: prevent blur by re-focusing in next cycle
+		setTimeout(() => {
+		  if (input === document.activeElement && input.checkValidity() === false) {
+			input.focus();
+		  }
+		}, 0);
+		
+	  } else {
+		input.setCustomValidity("");
+		input.classList.remove('border-red-500');
+	  }
+	}
+	
+	function updatePayAmountAndBalance(inputId, balanceId) {
+	  const input = document.getElementById(inputId);
+	  const balanceEl = document.getElementById(balanceId);
+
+	  const inputVal = parseDollar(input.value);
+	  const balanceVal = parseDollar(balanceEl.textContent);
+
+	  // Only deduct if valid
+	  if (inputVal <= balanceVal) {
+		const newBalance = balanceVal - inputVal;
+		balanceEl.textContent = `$${newBalance.toFixed(2)}`;
+		updatePayAmount();
+	  }
+	}
+	
+	function fillSnapBucks() {
+	  const snapTokensInput = document.getElementById('snapTokens');
+	  const snapBucksInput = document.getElementById('snapBucks');
+	  
+	  const tokens = parseInt(snapTokensInput.value);
+	  if (!isNaN(tokens)) {
+		const bucks = tokens * 5;
+		snapBucksInput.value = `$${bucks.toFixed(2)}`;
+	  } else {
+		snapBucksInput.value = '$0.00';
+	  }
+
+	  updatePayAmount(); // Recalculate the total remaining to be paid
+	}
+	
+	function fetchBenefitsBalance() {
+		const neighborId = document.getElementById('neighborId').value;
+		const scriptUrl = 'https://script.google.com/macros/s/AKfycbwAkUAeysrRGf-k95rv68YPvIzJmyjPJ5l_2Mk3TNOdFtyHjjExoK2-EgcXWVsD72-l/exec';
+		//const spinner = document.getElementById('neighborSpinner');
+		const snapBucksBalance = document.getElementById('snapBucksBalance');
+		const snapTokensBalance = document.getElementById('snapTokensBalance');
+		const communityBucksBalance = document.getElementById('communityBucksBalance');
+		const pglBucksBalance = document.getElementById('pglBucksBalance');
+		const wallaceBucksBalance = document.getElementById('wallaceBucksBalance');
+	    
+		//spinner.classList.remove('hidden');
+		snapBucksBalance.textContent = '';
+		snapTokensBalance.textContent = '';
+		communityBucksBalance.textContent = '';
+		pglBucksBalance.textContent = '';
+		wallaceBucksBalance.textContent = '';
+		//neighborInput.setCustomValidity(""); // Clear old error
+		//neighborInput.reportValidity();      // Reset UI
+			
+		fetch(`${scriptUrl}?neighborId=${encodeURIComponent(neighborId)}`)
+		.then(res => res.json())
+		.then(data => {
+		  const snap = parseFloat(data.snapBucks) || 0;
+		  const community = parseFloat(data.communityBucks) || 0;
+		  const pgl = parseFloat(data.pglBucks) || 0;
+		  const wallace = parseFloat(data.wallaceBucks) || 0;
+		     
+		  snapBucksBalance.textContent = `$${snap.toFixed(2)}`;
+		  snapBucksBalance.dataset.original = snap.toFixed(2);
+		     
+		  snapTokensBalance.textContent = data.snapTokens || 0;
+		     
+		  communityBucksBalance.textContent = `$${community.toFixed(2)}`;
+		  communityBucksBalance.dataset.original = community.toFixed(2);
+		     
+		  pglBucksBalance.textContent = `$${pgl.toFixed(2)}`;
+		  pglBucksBalance.dataset.original = pgl.toFixed(2);
+		     
+		  wallaceBucksBalance.textContent = `$${wallace.toFixed(2)}`;
+		  wallaceBucksBalance.dataset.original = wallace.toFixed(2);
+						//neighborInput.setCustomValidity(neighborInput.getAttribute('data-error'));
+						//neighborInput.reportValidity();
+		})
+		.catch(err => console.error("Fetch error", err))
+		.finally(() => {
+			//spinner.classList.add('hidden');
+		});
+	}
+	
+	document.querySelectorAll('input[name="paymentType"]').forEach(checkbox => {
+	  checkbox.addEventListener('change', () => {
+		const benefitsChecked = Array.from(document.querySelectorAll('input[name="paymentType"]:checked'))
+		  .some(cb => cb.value === 'Benefits');
+
+		document.getElementById('benefitsSection').classList.toggle('hidden', !benefitsChecked);
+		
+		const cashChecked = Array.from(document.querySelectorAll('input[name="paymentType"]:checked'))
+		  .some(cb => cb.value === 'Cash');
+
+		document.getElementById('cashSection').classList.toggle('hidden', !cashChecked);
+		
+		const debitChecked = Array.from(document.querySelectorAll('input[name="paymentType"]:checked'))
+		  .some(cb => cb.value === 'Debit or Credit');
+
+		document.getElementById('debitSection').classList.toggle('hidden', !debitChecked);
+	  });
+	});
+	
+	function toggleGuestFields() {
+      const customerType = document.getElementById('customerType').value;
+      document.getElementById('guestSection').classList.toggle('hidden', customerType !== 'Yes');
+      document.getElementById('attendeeSection').classList.toggle('hidden', customerType !== 'No');
+	  document.getElementById('neighborId').required = (customerType.value === "No");
+      document.getElementById('benefitsDisplaySection').classList.toggle('hidden', customerType !== 'No');
     }
 
     function toggleProduceSection() {
@@ -138,15 +394,22 @@
       const container = document.getElementById('produceContainer');
       const card = document.createElement('div');
       card.className = 'border p-4 rounded bg-white mb-3';
+	  
+	  const options = fullProduceList.map(item => `<option value="${item}">${item}</option>`).join("");
+	  
       card.innerHTML = `
         <label class="block mb-1">Produce</label>
-        <input type="text" class="w-full p-2 border rounded bg-white mb-2" placeholder="Produce Name" />
+        <select id="produceItem" name="produceItem" class="w-full p-2 border rounded bg-white mb-2">
+          <option value="">- Select Produce Name -</option>
+          ${options}
+        </select>
         <div class="flex gap-4">
           <input type="number" class="w-full p-2 border rounded bg-white" placeholder="Quantity" />
           <select class="p-2 border rounded bg-white">
-            <option>lbs</option>
-            <option>counts</option>
-            <option>bunches</option>
+			<option value="">- Select Units -</option>
+            <option value="lbs">lbs</option>
+            <option value="units (count)">units (count)</option>
+            <option value="bunches">bunches</option>
           </select>
         </div>
         <button type="button" class="text-red-500 text-sm mt-2" onclick="this.parentElement.remove()">Remove</button>
