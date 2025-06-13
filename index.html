@@ -311,7 +311,7 @@
 	  const balanceVal = parseDollar(balanceEl.dataset.original);
 
 	  // Only deduct if valid
-	  if (inputVal <= balanceVal) {
+	  if (inputVal <= balanceVal) { debugger;
 		  if (inputId !== 'snapTokens') {
 			const newBalance = balanceVal - inputVal;
 			balanceEl.textContent = `$${newBalance.toFixed(2)}`;
