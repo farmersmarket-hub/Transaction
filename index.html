@@ -303,7 +303,7 @@
 	  }
 	}
 	
-	function updatePayAmountAndBalance(inputId, balanceId) { debugger;
+	function updatePayAmountAndBalance(inputId, balanceId) {
 	  const input = document.getElementById(inputId);
 	  const balanceEl = document.getElementById(balanceId);
 
@@ -312,7 +312,7 @@
 
 	  // Only deduct if valid
 	  if (inputVal <= balanceVal) {
-		  if (input !== 'snapTokens') {
+		  if (inputId !== 'snapTokens') {
 			const newBalance = balanceVal - inputVal;
 			balanceEl.textContent = `$${newBalance.toFixed(2)}`;
 			updatePayAmount();
