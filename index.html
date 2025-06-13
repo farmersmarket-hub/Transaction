@@ -328,7 +328,7 @@
 	  const balanceEl = document.getElementById(balanceId);
 
 	  const inputVal = parseDollar(input.value);
-	  const balanceVal = parseDollar(balanceEl.value);
+	  const balanceVal = parseDollar(balanceEl.textContent);
 
 	  // Only deduct if valid
 	  if (inputVal <= balanceVal) {
