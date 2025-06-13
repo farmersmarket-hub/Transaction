@@ -99,9 +99,9 @@
 
 			<div class="flex items-center space-x-2">
 			  <span class="w-4 h-4 rounded bg-yellow-500"></span>
-			  <span class="text-sm font-medium text-gray-800">SNAP Bucks:</span>
+			  <span class="text-sm font-medium text-gray-800">SNAP+ Bucks:</span>
 			  <span id="snapBucksBalance" class="text-sm text-gray-900 font-semibold">$0.00,	</span>
-			  <span class="ml-4 text-sm font-medium text-gray-900 font-semibold">SNAP Tokens:</span>
+			  <span class="ml-4 text-sm font-medium text-gray-900 font-semibold">SNAP+ Tokens:</span>
 			  <span id="snapTokensBalance" class="text-sm text-gray-800 font-semibold">0</span>
 			</div>
 
@@ -144,12 +144,12 @@
 		  <div class="grid grid-cols-2 gap-4">
 		  
 			<div class="flex items-center space-x-2">
-			  <label for="snapTokens" class="w-36 text-sm font-medium text-gray-700">SNAP Tokens</label>
+			  <label for="snapTokens" class="w-36 text-sm font-medium text-gray-700">SNAP+ Tokens</label>
 			  <input type="text" id="snapTokens" class="p-2 border rounded bg-white w-half" oninput="validateAndRestrictBenefit('snapTokens', 'snapTokensBalance')" onchange="fillSnapBucks();  updatePayAmountAndBalance('snapTokens', 'snapTokensBalance');" placeholder="Tokens to be used" />
 			</div>
 
 			<div class="flex items-center space-x-2">
-			  <label for="snapBucks" class="w-36 text-sm font-medium text-gray-700">SNAP Bucks</label>
+			  <label for="snapBucks" class="w-36 text-sm font-medium text-gray-700">SNAP+ Bucks</label>
 			  <input type="text" id="snapBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('snapBucks', 'snapBucksBalance');" onblur="formatCurrency(this);" onchange="updatePayAmountAndBalance('snapBucks', 'snapBucksBalance')" placeholder="Bucks to be used" readonly />
 			</div>
 
@@ -165,7 +165,7 @@
 
 			<div class="flex items-center space-x-2">
 			  <label for="wallaceBucks" class="w-36 text-sm font-medium text-gray-700">Wallace Bucks</label>
-			  <input type="text" id="wallaceBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('wallaceBucks', 'wallaceBucksBalance');" onblur="formatCurrency(this)"  onchange="updatePayAmount()" data-error="Enter in the format: $0.00" placeholder="Bucks to be used" />
+			  <input type="text" id="wallaceBucks" class="p-2 border rounded bg-white w-half" oninput="validateCurrencyInput(this); validateAndRestrictBenefit('wallaceBucks', 'wallaceBucksBalance');" onblur="formatCurrency(this)"  onchange="updatePayAmountAndBalance('wallaceBucks', 'wallaceBucksBalance')" data-error="Enter in the format: $0.00" placeholder="Bucks to be used" />
 			</div>
 
 		  </div>
@@ -288,9 +288,15 @@
 
 	  // Only deduct if valid
 	  if (inputVal <= balanceVal) {
-		const newBalance = balanceVal - inputVal;
-		balanceEl.textContent = `$${newBalance.toFixed(2)}`;
-		updatePayAmount();
+		  if (input !== 'snapTokens') {
+			const newBalance = balanceVal - inputVal;
+			balanceEl.textContent = `$${newBalance.toFixed(2)}`;
+			updatePayAmount();
+		  } else {
+			  const newBalance = balanceVal - inputVal;
+			  balanceEl.textContent = newBalance;
+			  updatePayAmount();
+		  }
 	  }
 	}
 	
@@ -300,7 +306,7 @@
 	  
 	  const tokens = parseInt(snapTokensInput.value);
 	  if (!isNaN(tokens)) {
-		const bucks = tokens * 5;
+		const bucks = tokens * 2;
 		snapBucksInput.value = `$${bucks.toFixed(2)}`;
 	  } else {
 		snapBucksInput.value = '$0.00';
@@ -311,7 +317,7 @@
 	
 	function fetchBenefitsBalance() {
 		const neighborId = document.getElementById('neighborId').value;
-		const scriptUrl = 'https://script.google.com/macros/s/AKfycbwAkUAeysrRGf-k95rv68YPvIzJmyjPJ5l_2Mk3TNOdFtyHjjExoK2-EgcXWVsD72-l/exec';
+		const scriptUrl = 'https://script.google.com/macros/s/AKfycbw0mY1MIwYx2GStkFjYSR3SYAsEabhX4D5fUreIzCXi64MW2I7LOKQHqaAJCPXXQDql/exec';
 		//const spinner = document.getElementById('neighborSpinner');
 		const snapBucksBalance = document.getElementById('snapBucksBalance');
 		const snapTokensBalance = document.getElementById('snapTokensBalance');
@@ -331,7 +337,7 @@
 		fetch(`${scriptUrl}?neighborId=${encodeURIComponent(neighborId)}`)
 		.then(res => res.json())
 		.then(data => {
-		  const snap = parseFloat(data.snapBucks) || 0;
+		  const snap = parseFloat(data.snapPlusBucks) || 0;
 		  const community = parseFloat(data.communityBucks) || 0;
 		  const pgl = parseFloat(data.pglBucks) || 0;
 		  const wallace = parseFloat(data.wallaceBucks) || 0;
