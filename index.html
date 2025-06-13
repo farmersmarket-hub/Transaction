@@ -391,15 +391,14 @@
 	  function handleSubmit(event) {
   event.preventDefault();
 
-  const vendorPin = document.getElementById('vendorAlertPin').value.trim();
-  let vendorName = '';
-
-  // You can expand this mapping
-  if (vendorPin === '6045') {
-    vendorName = 'GrowMore';
+  document.getElementById('vendorAlertPin').addEventListener('change', () => {
+  const pin = document.getElementById('vendorAlertPin').value.trim();
+  if (pin === '6045') {
+    document.getElementById('vendorName').value = `GrowMore`;
+  } else {
+    document.getElementById('vendorName').value = '';
   }
-		  
-  document.getElementById('vendorName').value = vendorName;
+});
 
   document.getElementById('confirmationModal').classList.remove('hidden');
   return false;
