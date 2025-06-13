@@ -196,8 +196,8 @@
 <div id="confirmationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
     <h2 class="text-xl font-bold mb-4 text-red-600">⚠️ Confirm Transaction Submission</h2>
-    <p class="mb-2"><strong>Vendor PIN:</strong> <span id="modalVendorPin" class="font-mono"></span></p>
-    <p class="mb-4"><strong>Vendor Business Name:</strong> <span id="modalVendorName" class="font-mono"></span></p>
+    <p class="mb-2"><strong>Vendor PIN:</strong> <input type="text" id="vendorAlertPin" name="vendorAlertPin" class="w-full p-2 border rounded bg-white" required /></p>
+    <p class="mb-4"><strong>Vendor Business Name:</strong> <input type="text" id="vendorName" name="vendorName" class="w-full p-2 border rounded bg-white" readonly /></span></p>
     <p class="text-sm text-gray-700 mb-4">This is a <strong>monetary transaction form</strong>. Please review before submitting.</p>
     <div class="flex justify-end gap-3">
       <button onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">Cancel</button>
@@ -391,16 +391,15 @@
 	  function handleSubmit(event) {
   event.preventDefault();
 
-  const vendorPin = document.getElementById('vendorPin').value.trim();
+  const vendorPin = document.getElementById('vendorAlertPin').value.trim();
   let vendorName = '';
 
   // You can expand this mapping
   if (vendorPin === '6045') {
     vendorName = 'GrowMore';
   }
-
-  document.getElementById('modalVendorPin').textContent = vendorPin;
-  document.getElementById('modalVendorName').textContent = vendorName;
+		  
+  document.getElementById('vendorName').value = vendorName;
 
   document.getElementById('confirmationModal').classList.remove('hidden');
   return false;
