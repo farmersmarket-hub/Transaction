@@ -213,6 +213,26 @@
   <script>
 	document.getElementById('marketDate').valueAsDate = new Date();
 
+	  window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const neighborId = urlParams.get('neighborid');
+
+  if (neighborId) {
+    // Set dropdown to "No"
+    const customerTypeSelect = document.getElementById('customerType');
+    customerTypeSelect.value = 'No';
+
+    // Trigger the display logic for attendee fields
+    toggleGuestFields();
+
+    // Set the Neighbor ID field
+    document.getElementById('neighborId').value = neighborId;
+
+    // Trigger the fetch for benefits
+    fetchBenefitsBalance();
+  }
+});
+
 	  document.getElementById('vendorPin').addEventListener('change', () => {
   const pin = document.getElementById('vendorPin').value.trim();
   if (pin === '6045') {
