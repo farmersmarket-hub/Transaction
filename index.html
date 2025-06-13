@@ -303,12 +303,12 @@
 	  }
 	}
 	
-	function updatePayAmountAndBalance(inputId, balanceId) { debugger;
+	function updatePayAmountAndBalance(inputId, balanceId) {
 	  const input = document.getElementById(inputId);
 	  const balanceEl = document.getElementById(balanceId);
 
 	  const inputVal = parseDollar(input.value);
-	  const balanceVal = parseDollar(balanceEl.dataset.original);
+	  const balanceVal = parseDollar(balanceEl.value);
 
 	  // Only deduct if valid
 	  if (inputVal <= balanceVal) {
